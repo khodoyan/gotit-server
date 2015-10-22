@@ -1,18 +1,21 @@
 package pro.khodoian.controllers;
 
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pro.khodoian.services.UserService;
 
 /**
  * Hello world class for checking Spring Boot app
  *
- * @author eduardkhodoyan 
+ * @author eduardkhodoyan
  */
 @Controller
-@EnableAutoConfiguration
-public class home {
+public class HomeController {
+
+    @Autowired
+    private UserService userService;
 
     @RequestMapping("/")
     @ResponseBody
