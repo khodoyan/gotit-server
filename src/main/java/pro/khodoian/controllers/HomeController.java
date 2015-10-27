@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import pro.khodoian.client.TestServiceApi;
 import pro.khodoian.models.TestModel;
 import pro.khodoian.services.UserService;
 
@@ -18,13 +19,13 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping("/testanonymous")
+    @RequestMapping(TestServiceApi.TEST_ANONYMOUS)
     @ResponseBody
     public TestModel home() {
         return new TestModel();
     }
 
-    @RequestMapping("/testauth")
+    @RequestMapping(TestServiceApi.TEST_AUTHORIZED)
     @ResponseBody
     public TestModel testAuth() {
         return new TestModel();
