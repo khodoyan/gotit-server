@@ -51,8 +51,8 @@ dependencies {
     compile('mysql:mysql-connector-java:5.1.16')
 
     compile("org.springframework.boot:spring-boot-starter-security:${springBootVersion}")
-    compile("org.springframework.security.oauth:spring-security-oauth2:${springBootVersion}")
-    compile("org.springframework.security.oauth:spring-security-oauth2-javaconfig:${springBootVersion}")
+    compile("org.springframework.security.oauth:spring-security-oauth2")
+    //compile("org.springframework.security.oauth:spring-security-oauth2-javaconfig")
 
     testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
 
