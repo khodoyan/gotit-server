@@ -107,5 +107,12 @@
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.apache.tomcat.embed:tomcat-embed-el:8.0.23" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.apache.tomcat.embed:tomcat-embed-logging-juli:8.0.23" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Gradle: org.apache.tomcat.embed:tomcat-embed-websocket:8.0.23" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.guava:guava:17.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.3.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpclient:4.3.4" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.retrofit:retrofit:1.6.0" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.httpcomponents:httpcore:4.3.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.3.1" level="project" />
   </component>
 </module>

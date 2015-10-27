@@ -2,27 +2,21 @@ package pro.khodoian;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
-import org.springframework.boot.context.embedded.ErrorPage;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpStatus;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
+import pro.khodoian.auth.OAuth2Configuration;
 
+/**
+ * Class used to start Spring application
+ *
+ * @author eduardkhodoyan
+ */
 @SpringBootApplication
+@ComponentScan
+@Import(OAuth2Configuration.class)
 public class GotitServerApplication {
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(GotitServerApplication.class, args);
     }
-
-    @Bean
-    public EmbeddedServletContainerCustomizer containerCustomizer() {
-        return new EmbeddedServletContainerCustomizer() {
-            @Override
-            public void customize(ConfigurableEmbeddedServletContainer container) {
-                container.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/404.html"));
-            }
-        };
-    }
-
 }
