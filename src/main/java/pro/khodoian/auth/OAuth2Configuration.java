@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -61,6 +63,7 @@ public class OAuth2Configuration {
                     .authorizeRequests()
                     .antMatchers(TOKEN_PATH).permitAll()
                     .antMatchers(OAuth2TestServiceApi.TEST_ANONYMOUS).permitAll()
+                    .antMatchers("/test_get_username").permitAll()
                     .antMatchers("/**").authenticated()
             ;
         }
@@ -130,5 +133,23 @@ public class OAuth2Configuration {
                 //.password("pass")
                 //.roles("PATIENT", "FOLLOWER")
         ;
+    }
+
+    /**
+     * Returns the name of authenticated user
+     * @return String representing username of logged in user or null if no users login
+     */
+    public static String getUsername () {
+        if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String
+                && ((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+                .equals("anonymousUser")) {
+            return null;
+        }
+
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (userDetails == null)
+            return null;
+        else
+            return userDetails.getUsername();
     }
 }

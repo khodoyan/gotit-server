@@ -1,6 +1,8 @@
 package pro.khodoian.client;
 
+import pro.khodoian.controllers.TestController;
 import pro.khodoian.controllers.UserController;
+import pro.khodoian.models.TestModel;
 import pro.khodoian.models.User;
 import retrofit.http.Body;
 import retrofit.http.GET;
@@ -22,4 +24,7 @@ public interface UserControllerTestServiceApi {
 
     @GET(UserController.PATH_CONTROLLER + "/delete_all")
     public Void deleteAll();
+
+    @GET("/test_get_username")
+    public TestModel getUsername();
 }

@@ -162,4 +162,5 @@ public class ClientUser {
     public void setShareQuestions(boolean shareQuestions) {
         this.shareQuestions = shareQuestions;
     }
+
 }

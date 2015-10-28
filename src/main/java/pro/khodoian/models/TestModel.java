@@ -10,6 +10,10 @@ public class TestModel {
         result = "Ok";
     }
 
+    public TestModel(String result) {
+        this.result = result;
+    }
+
     public String getResult() {
         return result;
     }

@@ -3,7 +3,6 @@ package pro.khodoian;
 import org.junit.Test;
 import pro.khodoian.auth.OAuth2Configuration;
 import pro.khodoian.client.SecuredRestBuilder;
-import pro.khodoian.client.OAuth2TestServiceApi;
 import pro.khodoian.client.UserControllerTestServiceApi;
 import pro.khodoian.models.User;
 import retrofit.client.ApacheClient;
