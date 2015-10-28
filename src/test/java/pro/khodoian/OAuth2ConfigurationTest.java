@@ -5,7 +5,7 @@ import org.junit.Test;
 import pro.khodoian.auth.OAuth2Configuration;
 import pro.khodoian.client.SecuredRestBuilder;
 import pro.khodoian.client.SecuredRestException;
-import pro.khodoian.client.TestServiceApi;
+import pro.khodoian.client.OAuth2TestServiceApi;
 import pro.khodoian.models.TestModel;
 import retrofit.ErrorHandler;
 import retrofit.RestAdapter;
@@ -17,7 +17,7 @@ import static org.junit.Assert.fail;
 
 /**
  * Class for testing security configuration.
- * Shall be run, when Application is run in background
+ * Shall be run, when Application is running in background
  *
  * @author eduardkhodoyan
  */
@@ -39,7 +39,7 @@ public class OAuth2ConfigurationTest {
         }
     }
 
-    TestServiceApi testServiceApi = new SecuredRestBuilder()
+    OAuth2TestServiceApi OAuth2TestServiceApi = new SecuredRestBuilder()
             .setClient(new ApacheClient())
             .setEndpoint(TEST_URL)
             .setLoginEndpoint(TEST_URL + OAuth2Configuration.TOKEN_PATH)
@@ -47,24 +47,24 @@ public class OAuth2ConfigurationTest {
             .setUsername("admin")
             .setPassword("pass")
             .build()
-            .create(TestServiceApi.class);
+            .create(OAuth2TestServiceApi.class);
 
     @Test
     public void oauth2AccessAnonymousTest() {
-        TestModel anonymous = testServiceApi.testAnonymous();
+        TestModel anonymous = OAuth2TestServiceApi.testAnonymous();
         assertEquals(anonymous.getResult(),"Ok");
     }
 
     @Test
     public void oauth2AccessAuthorizedTest() {
-        TestModel auth = testServiceApi.testAuth();
+        TestModel auth = OAuth2TestServiceApi.testAuth();
         assertEquals(auth.getResult(),"Ok");
     }
 
     @Test(expected = SecuredRestException.class)
     public void denyAccessBadCredentials() {
         ErrorRecorder errorRecorder = new ErrorRecorder();
-        TestServiceApi unauthorizedApi = new SecuredRestBuilder()
+        OAuth2TestServiceApi unauthorizedApi = new SecuredRestBuilder()
                 .setClient(new ApacheClient())
                 .setEndpoint(TEST_URL)
                 .setLoginEndpoint(TEST_URL + OAuth2Configuration.TOKEN_PATH)
@@ -74,7 +74,7 @@ public class OAuth2ConfigurationTest {
                 .setErrorHandler(errorRecorder)
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .build()
-                .create(TestServiceApi.class);
+                .create(OAuth2TestServiceApi.class);
         unauthorizedApi.testAuth();
         fail("Should have received unauthorized error");
     }
@@ -82,13 +82,13 @@ public class OAuth2ConfigurationTest {
     @Test
     public void denyAccessToAuthorizedResource() {
         ErrorRecorder errorRecorder = new ErrorRecorder();
-        TestServiceApi unauthorizedApi = new RestAdapter.Builder()
+        OAuth2TestServiceApi unauthorizedApi = new RestAdapter.Builder()
                 .setClient(new ApacheClient())
                 .setEndpoint(TEST_URL)
                 .setErrorHandler(errorRecorder)
                 .setLogLevel(RestAdapter.LogLevel.FULL)
                 .build()
-                .create(TestServiceApi.class);
+                .create(OAuth2TestServiceApi.class);
         try {
             unauthorizedApi.testAuth();
             fail("Should have received unauthorized error");

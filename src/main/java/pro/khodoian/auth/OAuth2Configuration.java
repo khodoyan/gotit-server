@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeSe
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.web.bind.annotation.RestController;
-import pro.khodoian.client.TestServiceApi;
+import pro.khodoian.client.OAuth2TestServiceApi;
 
 @Configuration
 @EnableAutoConfiguration
@@ -60,7 +60,7 @@ public class OAuth2Configuration {
             http
                     .authorizeRequests()
                     .antMatchers(TOKEN_PATH).permitAll()
-                    .antMatchers(TestServiceApi.TEST_ANONYMOUS).permitAll()
+                    .antMatchers(OAuth2TestServiceApi.TEST_ANONYMOUS).permitAll()
                     .antMatchers("/**").authenticated()
             ;
         }

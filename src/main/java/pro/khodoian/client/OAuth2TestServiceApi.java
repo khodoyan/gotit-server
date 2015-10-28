@@ -8,7 +8,7 @@ import retrofit.http.GET;
  *
  * @author eduardkhodoyan
  */
-public interface TestServiceApi {
+public interface OAuth2TestServiceApi {
 
     String TEST_ANONYMOUS = "/testanonymous";
     String TEST_AUTHORIZED = "/testauth";

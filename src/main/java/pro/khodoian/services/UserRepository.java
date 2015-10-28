@@ -1,12 +1,30 @@
 package pro.khodoian.services;
 
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import pro.khodoian.models.User;
 
 /**
- * Created by eduardkhodoyan on 10/21/15.
+ * JPA interface designed to get access to Relations
+ *
+ * @author eduardkhodoyan
  */
-public interface UserRepository extends Repository<User, Long> {
-    User findUserById(long id);
-    User findUserByUsername(String username);
+@Component("userRepository")
+@Repository
+public interface UserRepository extends CrudRepository<User, String> {
+    @Override
+    User findOne(String username);
+
+    @Override
+    User save(User user);
+
+    @Override
+    void delete(String username);
+
+    @Override
+    void deleteAll();
+
+    @Override
+    boolean exists(String username);
 }
