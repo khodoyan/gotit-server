@@ -129,7 +129,7 @@ public class OAuth2Configuration {
                 .dataSource(dataSource)
                 //.inMemoryAuthentication()
                 //.passwordEncoder(new BCryptPasswordEncoder())
-                //.withUser("admin")
+                //.withUser("user1")
                 //.password("pass")
                 //.roles("PATIENT", "FOLLOWER")
         ;
@@ -139,7 +139,7 @@ public class OAuth2Configuration {
      * Returns the name of authenticated user
      * @return String representing username of logged in user or null if no users login
      */
-    public static String getUsername () {
+    public static String getPrincipal() {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof String
                 && ((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal())
                 .equals("anonymousUser")) {

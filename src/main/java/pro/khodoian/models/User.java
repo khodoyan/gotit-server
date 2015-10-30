@@ -1,12 +1,19 @@
 package pro.khodoian.models;
 
+import pro.khodoian.clientmodels.Follower;
+
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entity for keeping User values in Spring database
  */
 @Entity
 public class User {
+
+    @OneToMany(mappedBy = "user")
+    private Set<Relation> relations = new HashSet<>();
 
     @Id
     @Column(nullable = false, unique = true)
@@ -41,6 +48,24 @@ public class User {
         this.birthDay = birthDay;
         this.medicalRecordNumber = medicalRecordNumber;
         this.userpicFilename = userpicFilename;
+    }
+
+    /**
+     * Factory method to make User from Follower received from remote client
+     * mandatory field: username
+     *
+     * @param follower data received from remote client
+     * @return User if all correct, null if mandatory field is missing
+     */
+    public static User makeUser(Follower follower) {
+        if (follower == null || follower.getFollower() == null || follower.getFollower().equals(""))
+            return null;
+        User result = new User();
+        result.username = follower.getFollower();
+        result.firstName = follower.getFirstName();
+        result.lastName = follower.getLastName();
+        result.userpicFilename = follower.getUserpicFilename();
+        return result;
     }
 
     public boolean isPatient() {

@@ -30,7 +30,7 @@ public class TestController {
     @RequestMapping("/test_get_username")
     @ResponseBody
     public TestModel getUsername() {
-        return new TestModel(OAuth2Configuration.getUsername());
+        return new TestModel(OAuth2Configuration.getPrincipal());
     }
 
 }

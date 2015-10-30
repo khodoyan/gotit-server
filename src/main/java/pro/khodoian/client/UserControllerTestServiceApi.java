@@ -1,6 +1,5 @@
 package pro.khodoian.client;
 
-import pro.khodoian.controllers.TestController;
 import pro.khodoian.controllers.UserController;
 import pro.khodoian.models.TestModel;
 import pro.khodoian.models.User;
@@ -10,19 +9,19 @@ import retrofit.http.POST;
 import retrofit.http.Path;
 
 /**
- * Retrofit interface designed for testing authorization
+ * Retrofit interface designed for testing UserController
  *
  * @author eduardkhodoyan
  */
 public interface UserControllerTestServiceApi {
 
-    @POST(UserController.PATH_CONTROLLER)
+    @POST(UserController.CONTROLLER_PATH)
     User addUser(@Body User user);
 
-    @GET(UserController.PATH_CONTROLLER + "/{username}")
+    @GET(UserController.CONTROLLER_PATH + "/{username}")
     public User getUser(@Path("username") String username);
 
-    @GET(UserController.PATH_CONTROLLER + "/delete_all")
+    @GET(UserController.CONTROLLER_PATH + "/delete_all")
     public Void deleteAll();
 
     @GET("/test_get_username")

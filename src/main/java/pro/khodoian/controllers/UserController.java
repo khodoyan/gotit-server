@@ -15,12 +15,12 @@ import pro.khodoian.services.UserRepository;
 public class UserController {
     // TODO: make this class not available to people of delete it
 
-    public static final String PATH_CONTROLLER = "/user";
+    public static final String CONTROLLER_PATH = "/user";
 
     @Autowired
     UserRepository userRepository;
 
-    @RequestMapping(value = PATH_CONTROLLER, method = RequestMethod.POST)
+    @RequestMapping(value = CONTROLLER_PATH, method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<User> addUser(@RequestBody User user) {
         try {
@@ -40,7 +40,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = PATH_CONTROLLER + "/{username}", method = RequestMethod.GET)
+    @RequestMapping(value = CONTROLLER_PATH + "/{username}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<User> getUser(@PathVariable("username") String username) {
         try {
@@ -52,7 +52,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = PATH_CONTROLLER + "/delete/{username}", method = RequestMethod.GET)
+    @RequestMapping(value = CONTROLLER_PATH + "/delete/{username}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Void> deleteUser(@PathVariable("username") String username) {
         try {
@@ -68,7 +68,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = PATH_CONTROLLER + "/delete_all")
+    @RequestMapping(value = CONTROLLER_PATH + "/delete_all")
     public ResponseEntity<Void> deleteAll() {
         try {
             userRepository.deleteAll();

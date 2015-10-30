@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import pro.khodoian.models.User;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 /**
  * JPA interface designed to get access to Relations
  *
@@ -27,4 +30,6 @@ public interface UserRepository extends CrudRepository<User, String> {
 
     @Override
     boolean exists(String username);
+
+    //HashMap<String, User> findByRelationPatient(String patient);
 }
