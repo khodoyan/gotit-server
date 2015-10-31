@@ -2,7 +2,6 @@ package pro.khodoian.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import pro.khodoian.auth.OAuth2Configuration;
-import pro.khodoian.clientmodels.Follower;
 
 import javax.persistence.*;
 

@@ -1,6 +1,6 @@
 package pro.khodoian.client;
 
-import pro.khodoian.clientmodels.Follower;
+import pro.khodoian.models.Follower;
 import pro.khodoian.controllers.FollowerController;
 import retrofit.http.*;
 

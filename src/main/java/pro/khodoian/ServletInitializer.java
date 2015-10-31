@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
  *
  * @author eduardkhodoyan
  */
+
 @Configuration
 public class ServletInitializer extends SpringBootServletInitializer {
 

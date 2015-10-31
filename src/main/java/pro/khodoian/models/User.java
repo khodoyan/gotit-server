@@ -1,7 +1,5 @@
 package pro.khodoian.models;
 
-import pro.khodoian.clientmodels.Follower;
-
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -68,7 +66,7 @@ public class User {
         return result;
     }
 
-    public boolean isPatient() {
+    public boolean getIsPatient() {
         return isPatient;
     }
 

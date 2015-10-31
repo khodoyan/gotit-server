@@ -8,9 +8,9 @@ import pro.khodoian.auth.OAuth2Configuration;
 import pro.khodoian.client.FollowerControllerTestServiceApi;
 import pro.khodoian.client.SecuredRestBuilder;
 import pro.khodoian.client.UserControllerTestServiceApi;
-import pro.khodoian.clientmodels.Follower;
+import pro.khodoian.models.Follower;
 import pro.khodoian.models.Relation;
-import pro.khodoian.models.User;
+import pro.khodoian.models.SignupUser;
 import retrofit.ErrorHandler;
 import retrofit.RetrofitError;
 import retrofit.client.ApacheClient;
@@ -46,12 +46,41 @@ public class FollowerControllerTest {
 
     public static final String TEST_URL = "http://localhost:8080";
 
-    public static final User testUser0 = new User(true, "admin", "firstname0", "lastname0",0,"record0","userpic0");
-    public static final User testUser1 = new User(true, "user1", "firstname1", "lastname1",0,"record1","userpic1");
-    public static final User testUser2 = new User(true, "user2", "firstname2", "lastname2",0,"record2","userpic2");
+    public static final SignupUser admin = SignupUser.makeUser(
+            "admin",
+            "pass",
+            true,
+            "admin_firstname",
+            "admin_lastname",
+            1,
+            "admin_medical1",
+            "admin_userpic1",
+            SignupUser.Role.ADMIN);
+
+    public static final SignupUser testUser1 = SignupUser.makeUser(
+            "user1",
+            "password1",
+            true,
+            "user1_firstname",
+            "user1_lastname",
+            1,
+            "user1_medical1",
+            "user1_userpic1",
+            SignupUser.Role.FOLLOWER);
+
+    public static final SignupUser testUser2 = SignupUser.makeUser(
+            "user2",
+            "password2",
+            true,
+            "user2_firstname",
+            "user2_lastname",
+            1,
+            "user2_medical1",
+            "user2_userpic1",
+            SignupUser.Role.FOLLOWER);
 
     public static final Relation testRelation0 = new Relation(
-            testUser0.getUsername(),
+            admin.getUsername(),
             testUser1.getUsername(),
             true, // isConfirmed
             true, // isFollowed
@@ -62,7 +91,7 @@ public class FollowerControllerTest {
     );
 
     public static final Relation updatedTestRelation0 = new Relation(
-            testUser0.getUsername(),
+            admin.getUsername(),
             testUser1.getUsername(),
             true, // isConfirmed
             false, // isFollowed
@@ -73,7 +102,7 @@ public class FollowerControllerTest {
     );
 
     public static final Relation testRelation1 = new Relation(
-            testUser0.getUsername(),
+            admin.getUsername(),
             testUser2.getUsername(),
             true, // isConfirmed
             true, // isShared
@@ -83,22 +112,8 @@ public class FollowerControllerTest {
             true  // shareQuestionnaire
     );
 
-    /*
-    public static final Relation testRelation2 = new Relation(
-            testUser1.getUsername(),
-            testUser0.getUsername(),
-            true, // isConfirmed
-            true, // isShared
-            true, // shareFeeling
-            true, // shareBloodSugar
-            true, // shareInsulin
-            true  // shareQuestionnaire
-    );
-    */
-
-
-    public static final Follower testFollower1 = Follower.makeFollower(testUser1, testRelation0, false);
-    public static final Follower testFollower2 = Follower.makeFollower(testUser2, testRelation1, false);
+    public static final Follower testFollower1 = Follower.makeFollower(testUser1.toUser(), testRelation0, false);
+    public static final Follower testFollower2 = Follower.makeFollower(testUser2.toUser(), testRelation1, false);
 
     FollowerControllerTestServiceApi adminServiceApi = new SecuredRestBuilder()
             .setClient(new ApacheClient())
@@ -116,8 +131,8 @@ public class FollowerControllerTest {
             .setEndpoint(TEST_URL)
             .setLoginEndpoint(TEST_URL + OAuth2Configuration.TOKEN_PATH)
             .setClientId("mobile")
-            .setUsername("user1")
-            .setPassword("pass")
+            .setUsername(testUser1.getUsername())
+            .setPassword(testUser1.getPassword())
             .setErrorHandler(errorRecorder)
             .build()
             .create(FollowerControllerTestServiceApi.class);
@@ -134,14 +149,20 @@ public class FollowerControllerTest {
 
     @Before
     public void initiate() {
-        userServiceApi.addUser(testUser0);
-        userServiceApi.addUser(testUser1);
-        userServiceApi.addUser(testUser2);
+//        userServiceApi.signup(admin);
+        if(userServiceApi.getUser(testUser1.getUsername()) == null)
+            userServiceApi.signup(testUser1);
+        if(userServiceApi.getUser(testUser2.getUsername()) == null)
+            userServiceApi.signup(testUser2);
     }
 
     @After
     public void finish() {
-        userServiceApi.deleteAll();
+//        userServiceApi.delete(admin.getUsername());
+        if(userServiceApi.getUser(testUser1.getUsername()) != null)
+            userServiceApi.delete(testUser1.getUsername());
+        if(userServiceApi.getUser(testUser2.getUsername()) != null)
+            userServiceApi.delete(testUser2.getUsername());
         adminServiceApi.deleteAll();
     }
 
@@ -170,19 +191,14 @@ public class FollowerControllerTest {
         adminServiceApi.deleteAll();
         adminServiceApi.add(testFollower1);
         adminServiceApi.delete(testUser1.getUsername());
-        try {
-            assertFollower(null, adminServiceApi.get(testUser1.getUsername()));
-            fail("Test should have not passed here. 404 error should have been called");
-        } catch (Exception e) {
-            assertEquals(HttpStatus.SC_NOT_FOUND, errorRecorder.getError().getResponse().getStatus());
-        }
+        assertFollower(null, adminServiceApi.get(testUser1.getUsername()));
     }
 
     @Test
     public void updateTest() {
         adminServiceApi.deleteAll();
         adminServiceApi.add(testFollower1);
-        Follower updatedFollower = Follower.makeFollower(testUser1, updatedTestRelation0);
+        Follower updatedFollower = Follower.makeFollower(testUser1.toUser(), updatedTestRelation0);
         adminServiceApi.updateSettings(updatedFollower);
         Follower actual = adminServiceApi.get(testUser1.getUsername());
         assertFollower(updatedFollower, actual);
@@ -191,11 +207,14 @@ public class FollowerControllerTest {
     @Test
     public void confirmTest() {
         adminServiceApi.deleteAll();
+        if (userServiceApi.getUser(testUser1.getUsername()) == null)
+            userServiceApi.signup(testUser1);
         adminServiceApi.add(testFollower1);
-        Follower confirmedFollower = Follower.makeFollower(testUser1, testRelation0, true);
-        user1ServiceApi.confirm(testUser0.getUsername());
+        Follower expected = Follower.makeFollower(testUser1.toUser(), testRelation0, true);
+        user1ServiceApi.confirm(admin.getUsername());
         Follower actual = adminServiceApi.get(testUser1.getUsername());
-        assertFollower(confirmedFollower, actual);
+        userServiceApi.delete(testUser1.getUsername());
+        assertFollower(expected, actual);
     }
 
     public void assertFollower(Follower expected, Follower actual) {

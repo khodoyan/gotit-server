@@ -19,6 +19,7 @@ import pro.khodoian.auth.OAuth2Configuration;
 public class GotitServerApplication {
 
     public static void main(String[] args) throws Exception {
+
         SpringApplication.run(GotitServerApplication.class, args);
     }
 }

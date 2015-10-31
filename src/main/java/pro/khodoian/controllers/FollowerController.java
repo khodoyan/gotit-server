@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pro.khodoian.auth.OAuth2Configuration;
-import pro.khodoian.clientmodels.Follower;
+import pro.khodoian.models.Follower;
 import pro.khodoian.models.Relation;
 import pro.khodoian.models.User;
 import pro.khodoian.services.RelationRepository;
@@ -100,18 +100,24 @@ public class FollowerController {
             String principal = OAuth2Configuration.getPrincipal();
             // get user and check
             User followerUser = userRepository.findOne(followerUsername);
-            if (followerUser == null)
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            if (followerUser == null) {
+                Follower nullResult = null;
+                return new ResponseEntity<>(nullResult, HttpStatus.OK);
+            }
 
             // get direct relation and check
             Relation directRelation = relationRepository.findOneByPatientAndFollower(principal, followerUsername);
-            if (directRelation == null)
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            if (directRelation == null){
+                Follower nullResult = null;
+                return new ResponseEntity<>(nullResult, HttpStatus.OK);
+            }
 
             // get indirect relation and check
             Relation indirectRelation = relationRepository.findOneByPatientAndFollower(followerUsername, principal);
-            if (indirectRelation == null)
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            if (indirectRelation == null){
+                Follower nullResult = null;
+                return new ResponseEntity<>(nullResult, HttpStatus.OK);
+            }
 
             // success: make follower and return
             return new ResponseEntity<>(
@@ -157,10 +163,10 @@ public class FollowerController {
                             && relation.getFollower() != null && !relation.getFollower().equals("")) {
                         isConfirmedByFollower = (Boolean) iFollowMap.get(relation.getFollower());
                     }
+                    // TODO: optimise here by using one SQL request - NESTED SQL is terrible!!!
                     User followerUser = userRepository.findOne(relation.getFollower());
 
                     Follower follower = Follower.makeFollower(
-                            // TODO: optimise here by using one SQL request - NESTED SQL is terrible!!!
                             followerUser,
                             relation,
                             isConfirmedByFollower);

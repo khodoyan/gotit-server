@@ -12,12 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -30,8 +32,11 @@ import org.springframework.security.oauth2.provider.code.AuthorizationCodeServic
 import org.springframework.security.oauth2.provider.code.JdbcAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.web.bind.annotation.RestController;
 import pro.khodoian.client.OAuth2TestServiceApi;
+import pro.khodoian.controllers.UserController;
 
 @Configuration
 @EnableAutoConfiguration
@@ -41,8 +46,23 @@ public class OAuth2Configuration {
 
     public static final String TOKEN_PATH = "/oauth/token";
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Autowired
     private DataSource dataSource;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Bean
+    public UserDetailsManager userDetailsManager() {
+        JdbcUserDetailsManager manager = new JdbcUserDetailsManager();
+        manager.setDataSource(dataSource);
+        return manager;
+    }
 
     @Configuration
     @EnableResourceServer
@@ -64,6 +84,7 @@ public class OAuth2Configuration {
                     .antMatchers(TOKEN_PATH).permitAll()
                     .antMatchers(OAuth2TestServiceApi.TEST_ANONYMOUS).permitAll()
                     .antMatchers("/test_get_username").permitAll()
+                    .antMatchers(HttpMethod.POST, UserController.CONTROLLER_PATH + "/signup").permitAll()
                     .antMatchers("/**").authenticated()
             ;
         }
@@ -80,7 +101,8 @@ public class OAuth2Configuration {
         @Autowired
         private DataSource dataSource;
 
-        private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        @Autowired
+        PasswordEncoder passwordEncoder;
 
         @Bean
         public JdbcTokenStore tokenStore() {
@@ -96,7 +118,7 @@ public class OAuth2Configuration {
         public void configure(AuthorizationServerSecurityConfigurer security)
                 throws Exception {
             // TODO: turn on passwords hashing
-            //security.passwordEncoder(passwordEncoder);
+            security.passwordEncoder(passwordEncoder);
         }
 
         @Override
@@ -128,7 +150,7 @@ public class OAuth2Configuration {
                 .jdbcAuthentication()
                 .dataSource(dataSource)
                 //.inMemoryAuthentication()
-                //.passwordEncoder(new BCryptPasswordEncoder())
+                .passwordEncoder(passwordEncoder)
                 //.withUser("user1")
                 //.password("pass")
                 //.roles("PATIENT", "FOLLOWER")

@@ -1,8 +1,6 @@
-package pro.khodoian.clientmodels;
+package pro.khodoian.models;
 
 import pro.khodoian.auth.OAuth2Configuration;
-import pro.khodoian.models.Relation;
-import pro.khodoian.models.User;
 
 /**
  * Return type for client requests
