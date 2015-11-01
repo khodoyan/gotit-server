@@ -1,6 +1,7 @@
 package pro.khodoian.models;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,7 +11,7 @@ import java.util.Set;
 @Entity
 public class User {
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "follower")
     private Set<Relation> relations = new HashSet<>();
 
     @Id

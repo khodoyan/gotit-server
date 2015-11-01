@@ -15,8 +15,11 @@ public class Post {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private long id;
+
+    @ManyToOne(targetEntity = Relation.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @Column(nullable = false)
     private String username;
+
     @Column
     private long updatedAt;
     @Column

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import pro.khodoian.auth.OAuth2Configuration;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 
 /**
  * Entity for keeping relationships between users.
@@ -19,6 +20,9 @@ public class Relation {
 
     @Column(nullable = false)
     private String patient;
+
+    @OneToMany(mappedBy = "username", fetch = FetchType.LAZY)
+    private ArrayList<Post> posts = new ArrayList<>();
 
     @Column(nullable = false)
     private String follower;
