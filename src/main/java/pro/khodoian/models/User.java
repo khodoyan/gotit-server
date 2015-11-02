@@ -1,8 +1,8 @@
 package pro.khodoian.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -10,9 +10,6 @@ import java.util.Set;
  */
 @Entity
 public class User {
-
-    @OneToMany(mappedBy = "follower")
-    private Set<Relation> relations = new HashSet<>();
 
     @Id
     @Column(nullable = false, unique = true)

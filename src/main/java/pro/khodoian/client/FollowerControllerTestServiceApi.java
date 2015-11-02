@@ -1,5 +1,6 @@
 package pro.khodoian.client;
 
+import pro.khodoian.models.FollowSettings;
 import pro.khodoian.models.Follower;
 import pro.khodoian.controllers.FollowerController;
 import retrofit.http.*;
@@ -25,7 +26,7 @@ public interface FollowerControllerTestServiceApi {
     Void updateSettings(@Body Follower follower);
 
     @POST(FollowerController.CONTROLLER_PATH + "/confirm/{username}")
-    Void confirm(@Path("username") String username);
+    Void confirm(@Path("username") String username, @Body FollowSettings settings);
 
     @DELETE(FollowerController.CONTROLLER_PATH + "/{username}")
     Follower delete(@Path("username") String username);

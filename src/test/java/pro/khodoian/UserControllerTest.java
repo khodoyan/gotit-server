@@ -101,14 +101,12 @@ public class UserControllerTest {
     @Test
      public void addUserTest() {
         //unauthorisedServiceApi.signup(admin);
-        /*
         if (adminServiceApi.getUser(testUser1.getUsername()) == null)
             unauthorisedServiceApi.signup(testUser1);
         User user = adminServiceApi.getUser(testUser1.getUsername());
         User expected = testUser1.toUser();
         assertUser(expected, user);
         adminServiceApi.delete(testUser1.getUsername());
-        */
     }
 
     @Test

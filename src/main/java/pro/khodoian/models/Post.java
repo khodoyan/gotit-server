@@ -1,5 +1,10 @@
 package pro.khodoian.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.Hibernate;
+import org.springframework.beans.factory.annotation.Autowired;
+import pro.khodoian.services.RelationRepository;
+
 import javax.persistence.*;
 
 /**
@@ -16,7 +21,10 @@ public class Post {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private long id;
 
-    @ManyToOne(targetEntity = Relation.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne(targetEntity = Relation.class, fetch = FetchType.LAZY)
+    private Relation relation;
+
     @Column(nullable = false)
     private String username;
 
@@ -38,6 +46,63 @@ public class Post {
     private String questionnaire;
 
     protected Post() {
+    }
+
+    public Post(String username, long updatedAt, long deletedAt, long timestamp,
+                boolean isShared, Feeling feeling, float bloodSugar, boolean administeredInsulin,
+                String questionnaire) {
+        this.username = username;
+        this.updatedAt = updatedAt;
+        this.deletedAt = deletedAt;
+        this.timestamp = timestamp;
+        this.isShared = isShared;
+        this.feeling = feeling;
+        this.bloodSugar = bloodSugar;
+        this.administeredInsulin = administeredInsulin;
+        this.questionnaire = questionnaire;
+    }
+
+    private void fillRelation(String follower, RelationRepository relationRepository) {
+        if (relation == null
+                && username != null && !username.equals("")
+                && follower != null && !follower.equals("")
+                && !follower.equals(username))
+            relation = relationRepository.findOneByPatientAndFollower(username, follower);
+    }
+
+    public Post checkAuthorities(String follower, RelationRepository relationRepository) {
+        //Hibernate.initialize(this.getRelation());
+        fillRelation(follower, relationRepository);
+        if (follower == null || follower.equals(""))
+            return null;
+
+        boolean isSelf = follower.equals(username);
+        if (!isSelf && relation == null)
+            return null;
+        Post result = new Post();
+        result.id = id;
+        result.relation = relation;
+        result.username = username;
+        result.updatedAt = updatedAt;
+        result.deletedAt = deletedAt;
+        result.timestamp = timestamp;
+        result.isShared = isShared;
+        if (isSelf || relation.isShareFeeling())
+            result.feeling = feeling;
+        if (isSelf || relation.isShareBloodSugar())
+            result.bloodSugar = bloodSugar;
+        if (isSelf || relation.isShareInsulin())
+            result.administeredInsulin = administeredInsulin;
+        if (isSelf || relation.isShareQuestions())
+            result.questionnaire = questionnaire;
+        return result;
+    }
+
+    public Post checkShared() {
+        if(this.isShared)
+            return this;
+        else
+            return null;
     }
 
     public long getId() {
@@ -118,5 +183,13 @@ public class Post {
 
     public void setQuestionnaire(String questionnaire) {
         this.questionnaire = questionnaire;
+    }
+
+    public void setRelation(Relation relation) {
+        this.relation = relation;
+    }
+
+    public Relation getRelation() {
+        return relation;
     }
 }

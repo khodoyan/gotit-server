@@ -5,6 +5,7 @@ import pro.khodoian.auth.OAuth2Configuration;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Set;
 
 /**
  * Entity for keeping relationships between users.
@@ -21,15 +22,12 @@ public class Relation {
     @Column(nullable = false)
     private String patient;
 
-    @OneToMany(mappedBy = "username", fetch = FetchType.LAZY)
-    private ArrayList<Post> posts = new ArrayList<>();
+    @JsonIgnore
+    @OneToMany(targetEntity = Post.class, mappedBy = "username")
+    private Set<Post> posts;
 
     @Column(nullable = false)
     private String follower;
-
-    @JsonIgnore
-    @ManyToOne
-    private User user;
 
     @Column(nullable = false)
     private boolean isConfirmed;
@@ -210,7 +208,11 @@ public class Relation {
         this.shareQuestions = shareQuestions;
     }
 
-    public User getUser() {
-        return user;
+    public Set<Post> getPosts() {
+        return posts;
+    }
+
+    public void setPosts(Set<Post> posts) {
+        this.posts = posts;
     }
 }

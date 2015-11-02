@@ -121,7 +121,10 @@ public class UserController {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
             // check rights
-            UserDetailsImpl userDetails = UserDetailsImpl.makeUserDetailsImpl(userDetailsManager.loadUserByUsername(username));
+            UserDetailsImpl userDetails = null;
+            if (userDetailsManager.userExists(username))
+            userDetails = UserDetailsImpl.makeUserDetailsImpl(
+                    userDetailsManager.loadUserByUsername(username));
             String principal = OAuth2Configuration.getPrincipal();
             if (principal == null || principal.equals("") ||
                     (!principal.equals(username)

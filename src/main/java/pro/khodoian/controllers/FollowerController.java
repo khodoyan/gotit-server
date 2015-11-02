@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pro.khodoian.auth.OAuth2Configuration;
+import pro.khodoian.models.FollowSettings;
 import pro.khodoian.models.Follower;
 import pro.khodoian.models.Relation;
 import pro.khodoian.models.User;
@@ -56,27 +57,20 @@ public class FollowerController {
             String principal = OAuth2Configuration.getPrincipal();
             if (principal == null || principal.equals(""))
                 throw new Exception("Not authenticated");
-            Relation existingDirectRelation =
+
+            Relation addedDirectRelation = null;
+            Relation addedIndirectRelation = null;
+
+                    Relation existingDirectRelation =
                     relationRepository.findOneByPatientAndFollower(principal, follower.getFollower());
+            if (existingDirectRelation == null)
+                addedDirectRelation = relationRepository.save(directRelation);
             Relation existingIndirectRelation =
                     relationRepository.findOneByPatientAndFollower(follower.getFollower(), principal);
-            if (existingDirectRelation != null || existingIndirectRelation != null)
-                return new ResponseEntity<Follower>(HttpStatus.NOT_MODIFIED);
+            if (existingIndirectRelation == null)
+                addedIndirectRelation = relationRepository.save(indirectRelation);
 
-            // add relations to repository
-            Relation addedDirectRelation = relationRepository.save(directRelation);
-            Relation addedIndirectRelation = relationRepository.save(indirectRelation);
-
-            // check relations added correctly
-            if (addedDirectRelation == null || addedIndirectRelation == null) {
-                if (addedDirectRelation != null)
-                    relationRepository.delete(addedDirectRelation.getId());
-                if (addedIndirectRelation != null)
-                    relationRepository.delete(addedIndirectRelation.getId());
-                throw new Exception("Can't add both relations to repository");
-            } else {
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             // Error accessing the repository
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -231,10 +225,13 @@ public class FollowerController {
      *         HttpStatus.NOT_FOUND if relation not found
      */
     @RequestMapping(value = CONTROLLER_PATH + "/confirm/{username}", method = RequestMethod.POST)
-    public ResponseEntity<Void> confirm(@PathVariable("username") String username) {
+    public ResponseEntity<Void> confirm(
+            @PathVariable("username") String username,
+            @RequestBody FollowSettings settings
+    ) {
         String principal = OAuth2Configuration.getPrincipal();
         // validate input data
-        if (username == null || username.equals(""))
+        if (username == null || username.equals("") || settings == null)
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         try {
             // get Relation that is in the repository now for this username
@@ -245,6 +242,12 @@ public class FollowerController {
             else {
                 // update found Relation with new data
                 directRelation.setIsConfirmed(true);
+                directRelation.setIsFollowed(settings.getIsFollow());
+                directRelation.setShareFeeling(settings.getShareFeeling());
+                directRelation.setShareBloodSugar(settings.getShareBloodSugar());
+                directRelation.setShareInsulin(settings.getShareInsulin());
+                directRelation.setShareQuestions(settings.getShareQuestions());
+
                 directRelation = relationRepository.save(directRelation);
                 if (directRelation == null || !directRelation.isConfirmed())
                     // failed updating: should not be the case
