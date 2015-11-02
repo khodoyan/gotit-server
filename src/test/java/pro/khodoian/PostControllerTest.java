@@ -8,10 +8,12 @@ import pro.khodoian.client.FollowerControllerTestServiceApi;
 import pro.khodoian.client.PostControllerTestServiceApi;
 import pro.khodoian.client.SecuredRestBuilder;
 import pro.khodoian.client.UserControllerTestServiceApi;
+import pro.khodoian.controllers.PostController;
 import pro.khodoian.models.*;
 import retrofit.client.ApacheClient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -117,7 +119,7 @@ public class PostControllerTest {
 
     public static final Post[] posts = new Post[] {
             new Post(
-                    testUser0.getUsername(), // this.username = username;
+                    testUser1.getUsername(), // this.username = username;
                     0, // this.updatedAt = updatedAt;
                     0, // this.deletedAt = deletedAt;
                     new java.util.Date().getTime(), // this.timestamp = timestamp;
@@ -219,37 +221,109 @@ public class PostControllerTest {
         service1.delete(id);
     }
 
-    //@Test
+    @Test
     public void addPostsBulkTest() {
+        PostControllerTestServiceApi service0 = getPostServiceApi(testUser0.getUsername(), testUser0.getPassword());
+        ArrayList<Post> addedPosts = service0.addBulk(new ArrayList<>(Arrays.asList(posts)));
+        assertEquals(posts.length, addedPosts.size());
+    }
+
+    @Test
+    public void getAllTest() {
+        PostControllerTestServiceApi service0 = getPostServiceApi(testUser0.getUsername(), testUser0.getPassword());
+        PostControllerTestServiceApi service1 = getPostServiceApi(testUser1.getUsername(), testUser1.getPassword());
+        service1.addBulk(new ArrayList<>(Arrays.asList(posts)));
+
+        // check you can see own posts
+        ArrayList<Post> addedPosts = service1.getAll();
+        assertPostsNoId(posts, addedPosts);
+
+        // check you can't see other's posts without confirmation
+        addedPosts = service0.getAll();
+        assertEquals(0, addedPosts.size());
+
+        // confirm relation and check you can see posts and only the part, which is allowed by patient
+        FollowerControllerTestServiceApi followerService1 = getFollowerServiceApi(testUser1.getUsername(),
+                testUser1.getPassword());
+        followerService1.confirm(testUser0.getUsername(), new FollowSettings(
+                true,
+                false,
+                true,
+                false,
+                true
+        ));
+        addedPosts = service0.getAll();
+        assertEquals(3, addedPosts.size());
+
+        for (int i = 0; i < addedPosts.size(); i++) {
+            assertEquals(null, addedPosts.get(i).getFeeling());
+            assertEquals(false, addedPosts.get(i).getAdministeredInsulin());
+            assertEquals(posts[i].getBloodSugar(), addedPosts.get(i).getBloodSugar(), 0.01);
+            assertEquals(posts[i].getQuestionnaire(), addedPosts.get(i).getQuestionnaire());
+        }
 
     }
 
-    //@Test
-    public void canReadPost() {
+    @Test
+    public void getPageTest() {
+        // generate large set of data
+        Post[] largeTestSet = new Post[100];
+        for (int i = 0; i < 100; i++) {
+            largeTestSet[i] = new Post(
+                    testUser1.getUsername(),
+                    0,
+                    0,
+                    0,
+                    true,
+                    null,
+                    i * 1f,
+                    false,
+                    null
+            );
+        }
 
+        // add posts
+        PostControllerTestServiceApi service1 = getPostServiceApi(testUser1.getUsername(), testUser1.getPassword());
+        service1.addBulk(new ArrayList<>(Arrays.asList(largeTestSet)));
+
+        // get page and check number of items
+        ArrayList<Post> page0 =  service1.getPage(0);
+        assertEquals(PostController.PAGE_SIZE, page0.size());
     }
 
-    //@Test
-    public void cantReadPost() {
+    @Test
+    public void getBloodSugarByUsername() {
+        PostControllerTestServiceApi service1 = getPostServiceApi(testUser1.getUsername(), testUser1.getPassword());
+        for (Post post : posts)
+            service1.add(post);
 
+        ArrayList<BloodSugar> result = service1.getBloodSugarByUser(testUser1.getUsername());
+
+        for (int i = 0; i < posts.length; i++) {
+            assertEquals(posts[i].getBloodSugar(), result.get(i).getBloodSugar(), 0.01);
+        }
     }
 
     private void assertPostNoId(Post expected, Post actual) {
         if (expected == null || actual == null)
             assertEquals(expected, actual);
-        assertEquals(expected.getUsername(), actual.getUsername()); // this.username = username;
-        assertEquals(expected.getUpdatedAt(), actual.getUpdatedAt()); // this.updatedAt = updatedAt;
-        assertEquals(expected.getDeletedAt(), actual.getDeletedAt()); // this.deletedAt = deletedAt;
-        //assertEquals(expected.getTimestamp(), actual.getTimestamp()); // this.timestamp = timestamp;
-        assertEquals(expected.getIsShared(), actual.getIsShared()); // this.isShared = isShared;
-        assertEquals(expected.getFeeling(), actual.getFeeling()); // this.feeling = feeling;
-        assertEquals(expected.getBloodSugar(), actual.getBloodSugar(),0.1f); // this.bloodSugar = bloodSugar;
-        assertEquals(expected.getAdministeredInsulin(), actual.getAdministeredInsulin()); // this.administeredInsulin = administeredInsulin;
-        assertEquals(expected.getQuestionnaire(), actual.getQuestionnaire()); // this.questionnaire = questionnaire;
+        else {
+            assertEquals(expected.getUsername(), actual.getUsername()); // this.username = username;
+            assertEquals(expected.getUpdatedAt(), actual.getUpdatedAt()); // this.updatedAt = updatedAt;
+            assertEquals(expected.getDeletedAt(), actual.getDeletedAt()); // this.deletedAt = deletedAt;
+            //assertEquals(expected.getTimestamp(), actual.getTimestamp()); // this.timestamp = timestamp;
+            assertEquals(expected.getIsShared(), actual.getIsShared()); // this.isShared = isShared;
+            assertEquals(expected.getFeeling(), actual.getFeeling()); // this.feeling = feeling;
+            assertEquals(expected.getBloodSugar(), actual.getBloodSugar(), 0.1f); // this.bloodSugar = bloodSugar;
+            assertEquals(expected.getAdministeredInsulin(), actual.getAdministeredInsulin()); // this.administeredInsulin = administeredInsulin;
+            assertEquals(expected.getQuestionnaire(), actual.getQuestionnaire()); // this.questionnaire = questionnaire;
+        }
     }
 
-    private void assertPostWithId(Post expected, Post actual) {
-        assertPostNoId(expected, actual);
-        assertEquals(expected.getId(), actual.getId());
+    private void assertPostsNoId(Post[] expected, ArrayList<Post> actual) {
+        for (int i = 0; i < posts.length; i++) {
+            assertPostNoId(expected[i], actual.get(i));
+        }
     }
+
 }

@@ -22,11 +22,14 @@ public interface PostControllerTestServiceApi {
     @GET(value = PostController.CONTROLLER_PATH + "/all")
     public ArrayList<Post> getAll();
 
+    @GET(value = PostController.CONTROLLER_PATH + "/page/{page}")
+    public ArrayList<Post> getPage(@Path("page") int page);
+
     @GET(value = PostController.CONTROLLER_PATH + "/user/{username}")
     public ArrayList<Post> getByUser(@Path("username") String username);
 
-    @GET(value = PostController.CONTROLLER_PATH + "/insulin/{username}")
-    public ArrayList<BloodSugar> getInsulinByUser(@Path("username") String username);
+    @GET(value = PostController.CONTROLLER_PATH + "/blood_sugar/{username}")
+    public ArrayList<BloodSugar> getBloodSugarByUser(@Path("username") String username);
 
     @DELETE(value = PostController.CONTROLLER_PATH + "/{id}")
     public Void delete(@Path("id") long id);

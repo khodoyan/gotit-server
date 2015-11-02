@@ -24,7 +24,8 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
     @Override
     Page<Post> findAll(Pageable pageable);
 
-    //ArrayList<Post> findByUsername(ArrayList<String> username);
+    ArrayList<Post> findByUsernameIn(Sort sort, ArrayList<String> username);
+    Page<Post> findByUsernameIn(Pageable pageable, ArrayList<String> username);
 
     @Override
     <S extends Post> ArrayList<S> save(Iterable<S> entities);
@@ -33,8 +34,5 @@ public interface PostRepository extends PagingAndSortingRepository<Post, Long> {
 
     ArrayList<Post> findByUsername(String username);
     Page<Post> findByRelationFollowerAndRelationIsConfirmed(Pageable pageable, String username, boolean isConfirmed);
-    ArrayList<Post> findByRelationFollowerAndRelationIsConfirmed(Sort sort, String username, boolean isConfirmed);
-    ArrayList<Post> findByRelationPatientAndRelationFollowerAndRelationIsConfirmed(
-            Sort sort, String patient, String follower, boolean isConfirmed);
     ArrayList<Post> findByUsername(Sort sort, String username);
 }

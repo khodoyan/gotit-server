@@ -95,7 +95,6 @@ public class PostController {
 
     @RequestMapping(value = CONTROLLER_PATH + "/all", method = RequestMethod.GET)
     public ResponseEntity<ArrayList<Post>> getAll() {
-        // TODO: check and possibly redo
         try {
             // get principal and set it to post
             String principal = OAuth2Configuration.getPrincipal();
@@ -106,19 +105,81 @@ public class PostController {
             if (!userRepository.exists(principal))
                 throw new Exception("Principal does not exist in the database");
 
-            // get data, check permissions, and return result
+            // declare raw posts and result ArrayLists
+            ArrayList<Post> rawPosts;
             ArrayList<Post> result = new ArrayList<>();
-            ArrayList<Post> rawPosts = postRepository.findByRelationFollowerAndRelationIsConfirmed(
-                    new Sort(Sort.Direction.DESC, "timestamp"),
-                    principal,
-                    true);
-            if (rawPosts != null) {
-                for (Post post : rawPosts) {
-                    Post checkedPost = post.checkShared().checkAuthorities(principal, relationRepository);
-                    if (checkedPost != null)
-                        result.add(checkedPost);
+
+            // get followed users
+            ArrayList<Relation> followedRelations =
+                    relationRepository.findByFollower(principal);
+
+            // get raw posts for followed users
+            ArrayList<String> followedUsernames = new ArrayList<>();
+            followedUsernames.add(principal);
+
+            if (followedRelations != null) {
+                for (Relation relation : followedRelations) {
+                    if (relation != null)
+                        followedUsernames.add(relation.getPatient());
                 }
             }
+
+            rawPosts = postRepository.findByUsernameIn(
+                    new Sort(Sort.Direction.DESC, "timestamp"),
+                    followedUsernames
+            );
+
+            // proceed privacy settings check
+            if (rawPosts != null)
+                result = checkAuthorities(rawPosts, principal);
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @RequestMapping(value = CONTROLLER_PATH + "/page/{page}", method = RequestMethod.GET)
+    public ResponseEntity<ArrayList<Post>> getPage(@PathVariable("page") int page) {
+        try {
+            // get principal and set it to post
+            String principal = OAuth2Configuration.getPrincipal();
+            if (principal == null || principal.equals(""))
+                throw new Exception("Can't get principal for the transaction");
+
+            // check if user exists
+            if (!userRepository.exists(principal))
+                throw new Exception("Principal does not exist in the database");
+
+            // declare raw posts and result ArrayLists
+            Page<Post> rawPosts;
+            ArrayList<Post> result = new ArrayList<>();
+
+            // get followed users
+            ArrayList<Relation> followedRelations =
+                    relationRepository.findByFollower(principal);
+
+            // get raw posts for followed users
+            ArrayList<String> followedUsernames = new ArrayList<>();
+            followedUsernames.add(principal);
+
+            if (followedRelations != null) {
+                for (Relation relation : followedRelations) {
+                    if (relation != null)
+                        followedUsernames.add(relation.getPatient());
+                }
+            }
+
+            rawPosts = postRepository.findByUsernameIn(
+                    new PageRequest(page, PAGE_SIZE, new Sort(Sort.Direction.DESC, "timestamp")),
+                    followedUsernames
+            );
+
+            // proceed privacy settings check
+            if (rawPosts != null)
+                result = checkAuthorities(rawPosts, principal);
+
             return new ResponseEntity<>(result, HttpStatus.OK);
 
         } catch (Exception e) {
@@ -162,9 +223,8 @@ public class PostController {
         }
     }
 
-    @RequestMapping(value = CONTROLLER_PATH + "/insulin/{username}")
-    public ResponseEntity<ArrayList<BloodSugar>> getInsulinByUser(@PathVariable("username") String username) {
-        // TODO: check and possibly redo
+    @RequestMapping(value = CONTROLLER_PATH + "/blood_sugar/{username}")
+    public ResponseEntity<ArrayList<BloodSugar>> getBloodSugarByUser(@PathVariable("username") String username) {
         try {
             // check username
             if (username == null || username.equals("") || !userRepository.exists(username))
@@ -181,19 +241,20 @@ public class PostController {
 
             // check authorization
             Relation relation = relationRepository.findOneByPatientAndFollower(username, principal);
-            if (!username.equals(principal) && (relation == null || !relation.isShareInsulin()
+            if (!username.equals(principal) && (relation == null || !relation.isShareBloodSugar()
                     || !relation.isConfirmed()))
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 
             // get data, check permissions, and return result
             ArrayList<BloodSugar> result = new ArrayList<>();
             ArrayList<Post> rawPosts = postRepository.findByUsername(
-                    new Sort(Sort.Direction.DESC, "timestamp"),
+                    new Sort(Sort.Direction.ASC, "timestamp"),
                     username
             );
             if (rawPosts != null) {
                 for (Post post : rawPosts) {
-                    Post checkedPost = post.checkShared().checkAuthorities(principal, relationRepository);
+                    Post checkedPost = post.checkShared();
+                    checkedPost = checkedPost.checkAuthorities(principal, relationRepository);
                     if (checkedPost != null)
                         result.add(new BloodSugar(post.getTimestamp(), post.getBloodSugar()));
                 }
@@ -205,41 +266,8 @@ public class PostController {
         }
     }
 
-    @RequestMapping(value = CONTROLLER_PATH + "/page/{page}", method = RequestMethod.GET)
-    public ResponseEntity<ArrayList<Post>> getPage(@PathVariable("page") int page) {
-        // TODO: check and possibly redo
-        try {
-            // get principal and set it to post
-            String principal = OAuth2Configuration.getPrincipal();
-            if (principal == null || principal.equals(""))
-                throw new Exception("Can't get principal for the transaction");
-
-            // check if user exists
-            if (!userRepository.exists(principal))
-                throw new Exception("Principal does not exist in the database");
-
-            // get data and return result
-            PageRequest pageRequest = new PageRequest(page, PAGE_SIZE, new Sort(Sort.Direction.DESC, "timestamp"));
-            Page<Post> pageResult = postRepository.findByRelationFollowerAndRelationIsConfirmed(
-                    pageRequest, principal, true);
-            ArrayList<Post> result = new ArrayList<>();
-            for (Post post : pageResult) {
-                if (post != null) {
-                    Post checkedPost = post.checkShared().checkAuthorities(principal, relationRepository);
-                    if (checkedPost != null)
-                        result.add(checkedPost);
-                }
-            }
-            return new ResponseEntity<>(result, HttpStatus.OK);
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @RequestMapping(value = CONTROLLER_PATH + "/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> delete(@PathVariable("id") long id) {
-        // TODO: check and possibly redo
         try {
             // get principal and set it to post
             String principal = OAuth2Configuration.getPrincipal();
@@ -309,6 +337,4 @@ public class PostController {
         }
         return result;
     }
-
-
 }

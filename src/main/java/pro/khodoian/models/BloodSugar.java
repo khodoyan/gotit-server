@@ -13,4 +13,20 @@ public class BloodSugar {
         this.timestamp = timestamp;
         this.bloodSugar = bloodSugar;
     }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public float getBloodSugar() {
+        return bloodSugar;
+    }
+
+    public void setBloodSugar(float bloodSugar) {
+        this.bloodSugar = bloodSugar;
+    }
 }

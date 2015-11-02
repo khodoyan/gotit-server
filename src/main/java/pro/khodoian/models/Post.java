@@ -77,7 +77,7 @@ public class Post {
             return null;
 
         boolean isSelf = follower.equals(username);
-        if (!isSelf && relation == null)
+        if (!isSelf && (relation == null || !relation.isConfirmed()))
             return null;
         Post result = new Post();
         result.id = id;
