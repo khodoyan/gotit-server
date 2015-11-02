@@ -3,13 +3,11 @@ package pro.khodoian.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pro.khodoian.auth.OAuth2Configuration;
-import pro.khodoian.models.FollowSettings;
-import pro.khodoian.models.Follower;
-import pro.khodoian.models.Relation;
-import pro.khodoian.models.User;
+import pro.khodoian.models.*;
 import pro.khodoian.services.RelationRepository;
 import pro.khodoian.services.UserRepository;
 
@@ -32,6 +30,8 @@ public class FollowerController {
     private UserRepository userRepository;
     @Autowired
     private RelationRepository relationRepository;
+    @Autowired
+    private UserDetailsManager userDetailsManager;
 
     /**
      * Adds two relation to the repository: direct and indirect.
@@ -299,6 +299,11 @@ public class FollowerController {
      */
     @RequestMapping(value = CONTROLLER_PATH + "/delete_all", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteAll() {
+        String principal = OAuth2Configuration.getPrincipal();
+        UserDetailsImpl user = UserDetailsImpl
+                .makeUserDetailsImpl(userDetailsManager.loadUserByUsername(principal));
+        if (user == null || !user.hasAuthority(Authority.ADMIN))
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         relationRepository.deleteAll();
         return new ResponseEntity<>(HttpStatus.OK);
     }
