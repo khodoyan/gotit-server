@@ -74,6 +74,14 @@ public class UserController {
         if (userRepository.exists(signupUser.getUsername()) || userDetailsManager.userExists(signupUser.getUsername()))
             return new ResponseEntity<>(HttpStatus.CONFLICT); // TODO: check the code
 
+        // check that only admin can create admins
+        if (UserDetailsImpl.makeUserDetailsImpl(signupUser).hasAuthority(Authority.ADMIN)) {
+            UserDetailsImpl userDetailsChecker = UserDetailsImpl
+                    .makeUserDetailsImpl(userDetailsManager.loadUserByUsername(OAuth2Configuration.getPrincipal()));
+            if (userDetailsChecker == null || !userDetailsChecker.hasAuthority(Authority.ADMIN))
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
         // get User instance and save credentials and User to tables
         try {
             User user = signupUser.toUser();

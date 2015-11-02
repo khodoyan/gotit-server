@@ -5,13 +5,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import pro.khodoian.auth.OAuth2Configuration;
-import pro.khodoian.models.BloodSugar;
-import pro.khodoian.models.Post;
-import pro.khodoian.models.Relation;
-import pro.khodoian.models.User;
+import pro.khodoian.models.*;
 import pro.khodoian.services.PostRepository;
 import pro.khodoian.services.RelationRepository;
 import pro.khodoian.services.UserRepository;
@@ -35,6 +33,9 @@ public class PostController {
 
     @Autowired
     RelationRepository relationRepository;
+
+    @Autowired
+    UserDetailsManager userDetailsManager;
 
     @RequestMapping(value = CONTROLLER_PATH, method = RequestMethod.POST)
     @ResponseBody
@@ -265,6 +266,26 @@ public class PostController {
             else
                 return new ResponseEntity<>(HttpStatus.OK);
 
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Deletes all posts in repository. Available only to users with admin rights
+     *
+     * @return HttpStatus.OK if successful, HttpStatus.UNAUTHORIZED if no admin rights
+     */
+    @RequestMapping(value = CONTROLLER_PATH + "/delete_all", method = RequestMethod.DELETE)
+    public ResponseEntity<Void> deleteAll() {
+        try {
+            String principal = OAuth2Configuration.getPrincipal();
+            UserDetailsImpl user = UserDetailsImpl
+                    .makeUserDetailsImpl(userDetailsManager.loadUserByUsername(principal));
+            if (user == null || !user.hasAuthority(Authority.ADMIN))
+                return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            postRepository.deleteAll();
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }

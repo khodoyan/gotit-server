@@ -31,4 +31,7 @@ public interface PostControllerTestServiceApi {
     @DELETE(value = PostController.CONTROLLER_PATH + "/{id}")
     public Void delete(@Path("id") long id);
 
+    @DELETE(value = PostController.CONTROLLER_PATH + "/delete_all")
+    public Void deleteAll();
+
 }

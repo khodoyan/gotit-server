@@ -22,6 +22,17 @@ public class PostControllerTest {
 
     public static final String TEST_URL = "http://localhost:8080";
 
+    public static final SignupUser admin = SignupUser.makeUser(
+            "admin",
+            "pass",
+            true,
+            "admin_firstname",
+            "admin_lastname",
+            1,
+            "admin_medical1",
+            "admin_userpic1",
+            SignupUser.Role.ADMIN);
+
     public static final SignupUser testUser0 = SignupUser.makeUser(
             "user0",
             "password0",
@@ -143,7 +154,11 @@ public class PostControllerTest {
 
     @Before
     public void initiate() {
-        //userServiceApi.signup(admin);
+        PostControllerTestServiceApi postService = getPostServiceApi(
+                admin.getUsername(),
+                admin.getPassword()
+        );
+        postService.deleteAll();
         if(userServiceApi.getUser(testUser0.getUsername()) == null)
             userServiceApi.signup(testUser0);
         if(userServiceApi.getUser(testUser1.getUsername()) == null)
@@ -162,6 +177,12 @@ public class PostControllerTest {
         followerService.delete(testUser1.getUsername());
         userServiceApi.delete(testUser0.getUsername());
         userServiceApi.delete(testUser1.getUsername());
+
+        PostControllerTestServiceApi postService = getPostServiceApi(
+                admin.getUsername(),
+                admin.getPassword()
+        );
+        postService.deleteAll();
     }
 
     @Test

@@ -49,7 +49,7 @@ public class UserControllerTest {
             SignupUser.Role.FOLLOWER);
 
 
-    UserControllerTestServiceApi adminServiceApi = new SecuredRestBuilder()
+    private UserControllerTestServiceApi adminServiceApi = new SecuredRestBuilder()
             .setClient(new ApacheClient())
             .setEndpoint(TEST_URL)
             .setLoginEndpoint(TEST_URL + OAuth2Configuration.TOKEN_PATH)
