@@ -23,7 +23,7 @@ import static org.junit.Assert.fail;
  */
 
 public class OAuth2ConfigurationTest {
-    public static final String TEST_URL = "http://localhost:8080";
+    public static final String TEST_URL = Shared.TEST_URL;
 
     public class ErrorRecorder implements ErrorHandler {
         private RetrofitError error;

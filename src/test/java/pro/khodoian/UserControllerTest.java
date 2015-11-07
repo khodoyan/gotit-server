@@ -24,7 +24,7 @@ import static org.junit.Assert.fail;
  */
 public class UserControllerTest {
 
-    public static final String TEST_URL = "http://localhost:8080";
+    public static final String TEST_URL = Shared.TEST_URL;
 
     public static final SignupUser admin = SignupUser.makeUser(
             "admin",

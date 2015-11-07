@@ -15,6 +15,7 @@ import retrofit.RestAdapter.Log;
 import retrofit.RestAdapter.LogLevel;
 import retrofit.client.*;
 import retrofit.client.Client.Provider;
+import retrofit.client.Response;
 import retrofit.converter.Converter;
 import retrofit.mime.FormUrlEncodedTypedOutput;
 

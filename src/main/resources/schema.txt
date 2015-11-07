@@ -1,6 +1,6 @@
 create table users(
-      username varchar_ignorecase(50) not null primary key,
-      password varchar_ignorecase(50) not null,
+      username varchar(255) not null primary key,
+      password varchar(255) not null,
       enabled boolean not null);
 
 create table authorities (
@@ -9,3 +9,82 @@ create table authorities (
       constraint fk_authorities_users foreign key(username) references users(username));
       create unique index ix_auth_username on authorities (username,authority);
 
+
+create table oauth_client_details (
+  client_id VARCHAR(255) PRIMARY KEY,
+  resource_ids VARCHAR(255),
+  client_secret VARCHAR(255),
+  scope VARCHAR(255),
+  authorized_grant_types VARCHAR(255),
+  web_server_redirect_uri VARCHAR(255),
+  authorities VARCHAR(255),
+  access_token_validity INTEGER,
+  refresh_token_validity INTEGER,
+  additional_information VARCHAR(4096),
+  autoapprove tinyint
+);
+
+create table oauth_client_token (
+  token_id VARCHAR(255),
+  token BLOB,
+  authentication_id VARCHAR(255),
+  user_name VARCHAR(255),
+  client_id VARCHAR(255)
+);
+
+create table oauth_access_token (
+  token_id VARCHAR(255),
+  token BLOB,
+  authentication_id VARCHAR(255),
+  user_name VARCHAR(255),
+  client_id VARCHAR(255),
+  authentication BLOB,
+  refresh_token VARCHAR(255)
+);
+
+create table oauth_refresh_token (
+  token_id VARCHAR(255),
+  token BLOB,
+  authentication BLOB
+);
+
+create table oauth_code (
+  code VARCHAR(255), authentication BLOB
+);
+
+
+CREATE TABLE `post` (
+`id` bigint(20) NOT NULL,
+  `administered_insulin` bit(1) DEFAULT NULL,
+  `blood_sugar` float DEFAULT NULL,
+  `deleted_at` bigint(20) DEFAULT NULL,
+  `feeling` int(11) DEFAULT NULL,
+  `is_shared` bit(1) NOT NULL,
+  `questionnaire` varchar(255) DEFAULT NULL,
+  `timestamp` bigint(20) NOT NULL,
+  `updated_at` bigint(20) DEFAULT NULL,
+  `username` varchar(255) NOT NULL,
+  `relation_id` bigint(20) DEFAULT NULL
+);
+
+CREATE TABLE `relation` (
+`id` bigint(20) NOT NULL,
+  `follower` varchar(255) NOT NULL,
+  `is_confirmed` bit(1) NOT NULL,
+  `is_followed` bit(1) NOT NULL,
+  `patient` varchar(255) NOT NULL,
+  `share_blood_sugar` bit(1) NOT NULL,
+  `share_feeling` bit(1) NOT NULL,
+  `share_insulin` bit(1) NOT NULL,
+  `share_questions` bit(1) NOT NULL
+);
+
+CREATE TABLE `user` (
+  `username` varchar(255) NOT NULL,
+  `birth_day` bigint(20) NOT NULL,
+  `first_name` varchar(255) DEFAULT NULL,
+  `is_patient` bit(1) NOT NULL,
+  `last_name` varchar(255) DEFAULT NULL,
+  `medical_record_number` varchar(255) DEFAULT NULL,
+  `userpic_filename` varchar(255) DEFAULT NULL
+);

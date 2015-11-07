@@ -18,7 +18,7 @@ import static org.junit.Assert.fail;
  * @author eduardkhodoyan
  */
 public class GetPrincipalNameTest {
-    public static final String TEST_URL = "http://localhost:8080";
+    public static final String TEST_URL = Shared.TEST_URL;
 
     @Test
     public void getAuthenticatedUsername() {
