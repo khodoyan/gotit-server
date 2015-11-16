@@ -65,6 +65,18 @@ public class UserController {
         }
     }
 
+    @RequestMapping(value = CONTROLLER_PATH + "/principal", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<User> getUser() {
+        try {
+            String principal = OAuth2Configuration.getPrincipal();
+            User result = userRepository.findOne(principal);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @RequestMapping(value = CONTROLLER_PATH + "/signup", method = RequestMethod.POST)
     public ResponseEntity<Void> signup(@RequestBody SignupUser signupUser) {
         // validate data

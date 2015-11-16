@@ -139,6 +139,7 @@ public class OAuth2Configuration {
                     .authorities("ROLE_CLIENT")
                     .scopes("read")
                     .resourceIds("oauth2-resource")
+                    .accessTokenValiditySeconds(0)
             ;
         }
 
