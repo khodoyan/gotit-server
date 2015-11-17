@@ -3,6 +3,7 @@ package pro.khodoian.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -297,6 +298,7 @@ public class FollowerController {
      * Deletes all entries in Relations table of database
      * Method used for testing purposes only. Not accessible from controller
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = CONTROLLER_PATH + "/delete_all", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteAll() {
         String principal = OAuth2Configuration.getPrincipal();

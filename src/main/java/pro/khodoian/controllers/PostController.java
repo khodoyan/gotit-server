@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,7 @@ public class PostController {
     @Autowired
     UserDetailsManager userDetailsManager;
 
+    @PreAuthorize("hasRole('ROLE_PATIENT')")
     @RequestMapping(value = CONTROLLER_PATH, method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Post> add(@RequestBody Post post) {
@@ -64,6 +66,7 @@ public class PostController {
         }
     }
 
+    @PreAuthorize("hasRole('ROLE_PATIENT')")
     @RequestMapping(value = CONTROLLER_PATH + "/bulk", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<ArrayList<Post>> addBulk(@RequestBody ArrayList<Post> posts) {
@@ -304,6 +307,7 @@ public class PostController {
      *
      * @return HttpStatus.OK if successful, HttpStatus.UNAUTHORIZED if no admin rights
      */
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = CONTROLLER_PATH + "/delete_all", method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteAll() {
         try {
